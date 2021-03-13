@@ -38,6 +38,9 @@
 
             # twitter
             tweet-hs
+
+            # config
+            dhall
           ];
 
           src = builtins.path {
