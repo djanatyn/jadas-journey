@@ -16,13 +16,21 @@ import Web.Tweet.Utils
 
 type Parser = Parsec Void String
 
-data Kill = Kill {killStyle :: [String]} deriving (Show)
+data Kill = Kill
+  { killStyle :: [String],
+    killTarget :: [String]
+  }
+  deriving (Show)
+
+lexeme = L.lexeme space
 
 pStatement :: Parser Kill
 pStatement = dbg "statement" $ do
   _ <- string "Jada "
-  killStyle <- someTill (L.lexeme space (some letterChar)) (string "killed")
-  return Kill {killStyle}
+  killStyle <- someTill (lexeme $ some letterChar) (lexeme $ string "killed")
+  _ <- lexeme $ string "a"
+  killTarget <- someTill (lexeme $ some letterChar) (lexeme $ string "and")
+  return Kill {killStyle, killTarget}
 
 jadaRPGTimeline :: FilePath -> IO Timeline
 jadaRPGTimeline = getAll "jadaRPG" Nothing
