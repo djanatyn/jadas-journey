@@ -3,5 +3,13 @@ module Jada.Journey
   )
 where
 
+import Web.Tweet
+import Web.Tweet.API
+import Web.Tweet.Utils
+
+jadaRPGTimeline :: FilePath -> IO Timeline
+jadaRPGTimeline = getAll "jadaRPG" Nothing
+
 main :: IO ()
-main = putStrLn "jada's journey!"
+main =
+  jadaRPGTimeline ".cred.toml" >>= putStrLn . displayTimeline
