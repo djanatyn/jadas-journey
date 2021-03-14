@@ -17,5 +17,6 @@ executable jadas-journey
     megaparsec,
     parser-combinators,
     tweet-hs,
-    dhall
+    dhall,
+    microlens
   default-language: Haskell2010

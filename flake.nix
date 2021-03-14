@@ -21,6 +21,7 @@
           executableHaskellDepends = with final.haskellPackages; [
             # build depdenencies
             final.zlib
+            zlib
             final.pkg-config
 
             # dev tools
@@ -38,6 +39,7 @@
 
             # twitter
             tweet-hs
+            microlens
 
             # config
             dhall
