@@ -5,7 +5,7 @@ module Jada.Journey
   )
 where
 
-import Data.Void (Void)
+import Data.Void
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L (lexeme)
@@ -17,20 +17,36 @@ import Web.Tweet.Utils
 type Parser = Parsec Void String
 
 data Kill = Kill
-  { killStyle :: [String],
-    killTarget :: [String]
+  { killStyle :: String,
+    killTarget :: String,
+    killReward :: Reward
   }
   deriving (Show)
 
+data Reward = Level String | Item String deriving (Show)
+
 lexeme = L.lexeme space
 
-pStatement :: Parser Kill
-pStatement = dbg "statement" $ do
-  _ <- string "Jada "
-  killStyle <- someTill (lexeme $ some letterChar) (lexeme $ string "killed")
-  _ <- lexeme $ string "a"
-  killTarget <- someTill (lexeme $ some letterChar) (lexeme $ string "and")
-  return Kill {killStyle, killTarget}
+pLevel :: Parser Reward
+pLevel = do
+  string "and reached level "
+  level <- some numberChar
+  return $ Level level
+
+pItem :: Parser Reward
+pItem = do
+  string "found a "
+  item <- someTill asciiChar (char '!')
+  return $ Item item
+
+pKill :: Parser Kill
+pKill = dbg "kill" $ do
+  string "Jada "
+  killStyle <- lexeme $ some letterChar >> string "killed a "
+  killTarget <- lexeme $ some alphaNumChar
+  killReward <- pLevel <|> pItem
+
+  return Kill {killStyle, killTarget, killReward}
 
 jadaRPGTimeline :: FilePath -> IO Timeline
 jadaRPGTimeline = getAll "jadaRPG" Nothing
