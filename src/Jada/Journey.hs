@@ -56,7 +56,9 @@ pFlavor =
   choice $
     string
       <$> [ "Entering the world of... Jada MMORPG",
-            "Jada has entered the world at level 1!"
+            "Jada has entered the world at level 1!",
+            "The finest finery for supporters of the Beetle King and his adventures. https://t.co/xJuUWWmnpY",
+            "Jada's bard finally learned how to sing."
           ]
 
 main :: IO ()
