@@ -25,6 +25,10 @@ data Kill = Kill
 
 data Reward = Level String | Item String deriving (Show)
 
+newtype Discovery = Discovery String deriving (Show)
+
+newtype Train = Train String deriving (Show)
+
 lexeme = L.lexeme space
 
 pLevel :: Parser Reward
@@ -48,8 +52,17 @@ pKill = dbg "kill" $ do
 
   return Kill {killStyle, killTarget, killReward}
 
-jadaRPGTimeline :: FilePath -> IO Timeline
-jadaRPGTimeline = getAll "jadaRPG" Nothing
+pDiscovery :: Parser Discovery
+pDiscovery = do
+  string "Jada has discovered the "
+  discovery <- someTill asciiChar (char '.')
+  return $ Discovery discovery
+
+pTrain :: Parser Train
+pTrain = do
+  string "Jada notices a train headed for the "
+  destination <- someTill asciiChar (char '.')
+  return $ Train destination
 
 pFlavor :: Parser String
 pFlavor =
@@ -61,8 +74,8 @@ pFlavor =
             "Jada's bard finally learned how to sing."
           ]
 
-main :: IO ()
-main = do
-  putStrLn "success"
+jadaRPGTimeline :: FilePath -> IO Timeline
+jadaRPGTimeline = getAll "jadaRPG" Nothing
 
---- jadaRPGTimeline ".cred.toml" >>= putStrLn . displayTimeline
+main :: IO ()
+main = putStrLn "success"
