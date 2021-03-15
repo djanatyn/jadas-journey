@@ -51,6 +51,14 @@ pKill = dbg "kill" $ do
 jadaRPGTimeline :: FilePath -> IO Timeline
 jadaRPGTimeline = getAll "jadaRPG" Nothing
 
+pFlavor :: Parser String
+pFlavor =
+  choice $
+    string
+      <$> [ "Entering the world of... Jada MMORPG",
+            "Jada has entered the world at level 1!"
+          ]
+
 main :: IO ()
 main = do
   putStrLn "success"
