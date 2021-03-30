@@ -76,7 +76,7 @@ pTrain = dbg "train" $ do
   return $ Train destination
 
 pFlavor :: Parser JadaTweet
-pFlavor = do
+pFlavor = dbg "flavor" $ do
   text <-
     choice $
       string
