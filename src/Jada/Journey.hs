@@ -88,7 +88,12 @@ pFlavor = do
   return $ Flavor text
 
 pTweet :: Parser JadaTweet
-pTweet = pFlavor <|> pKill <|> pTrain <|> pDiscovery
+pTweet =
+  try pDiscovery
+    <|> try pFlavor
+    <|> try pKill
+    <|> try pDiscovery
+    <|> pTrain
 
 jadaRPGTimeline :: FilePath -> IO Timeline
 jadaRPGTimeline = getAll "jadaRPG" Nothing
