@@ -11,6 +11,10 @@
   outputs = { self, nixpkgs, ... }: {
     overlay = final: prev:
       let
+        tweet-hs = final.haskellPackages.tweet-hs.overrideAttrs(attrs: {
+          patches = [ ./tweet-hs.patch ];
+        });
+
         jadas-journey = final.haskellPackages.mkDerivation rec {
           pname = "jadas-journey";
           version = "0.1.0.0";

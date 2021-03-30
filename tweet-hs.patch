@@ -1,0 +1,37 @@
+diff --git a/src/Web/Tweet/API.hs b/src/Web/Tweet/API.hs
+index 770abee..1c9d757 100644
+--- a/src/Web/Tweet/API.hs
++++ b/src/Web/Tweet/API.hs
+@@ -66,15 +66,15 @@ getProfileMaxMem = fmap (getTweets . BSL.toStrict) .*** getProfileRawMem
+ getProfileRaw :: String -> Int -> FilePath -> Maybe Int -> IO BSL.ByteString
+ getProfileRaw sn count filepath maxId = getRequest ("https://api.twitter.com/1.1/statuses/user_timeline.json" ++ requestString) filepath
+     where requestString = case maxId of {
+-        (Just i) -> "?screen_name=" ++ sn ++ "&count=" ++ show count ++ "&max_id=" ++ show i ;
+-        Nothing -> "?screen_name=" ++ sn ++ "&count=" ++ show count }
++        (Just i) -> "?tweet_mode=extended&screen_name=" ++ sn ++ "&count=" ++ show count ++ "&max_id=" ++ show i ;
++        Nothing -> "?tweet_mode=extended&screen_name=" ++ sn ++ "&count=" ++ show count }
+
+ -- | Gets user profile with max_id set
+ getProfileRawMem :: String -> Int -> Config -> Maybe Int -> IO BSL.ByteString
+ getProfileRawMem sn count config maxId = getRequestMem ("https://api.twitter.com/1.1/statuses/user_timeline.json" ++ requestString) config
+     where requestString = case maxId of {
+-        (Just i) -> "?screen_name=" ++ sn ++ "&count=" ++ show count ++ "&max_id=" ++ show i ;
+-        Nothing -> "?screen_name=" ++ sn ++ "&count=" ++ show count }
++        (Just i) -> "?tweet_mode=extended&screen_name=" ++ sn ++ "&count=" ++ show count ++ "&max_id=" ++ show i ;
++        Nothing -> "?tweet_mode=extended&screen_name=" ++ sn ++ "&count=" ++ show count }
+
+ -- | Get mentions and parse response as a list of tweets
+ mentions :: Int -> FilePath -> IO (Either (ParseErrorBundle String Void) Timeline)
+diff --git a/src/Web/Tweet/Parser.hs b/src/Web/Tweet/Parser.hs
+index 3ed02fc..0b46ca0 100644
+--- a/src/Web/Tweet/Parser.hs
++++ b/src/Web/Tweet/Parser.hs
+@@ -36,7 +36,7 @@ inReplyTo str =
+ getData :: Parser TweetEntity
+ getData = do
+     idNum <- read <$> filterStr "id"
+-    t <- filterStr "text"
++    t <- filterStr "full_text"
+     skipMentions
+     irt <- inReplyTo <$> filterStr "in_reply_to_status_id"
+     n <- filterStr "name"
