@@ -67,9 +67,12 @@ pDiscovery = dbg "discovery" $ do
   return $ Discovery discovery
 
 pTrain :: Parser JadaTweet
-pTrain = do
-  string "Jada notices a train headed for the "
-  destination <- someTill asciiChar (char '.')
+pTrain = dbg "train" $ do
+  lexeme . string $ "Jada notices a train headed for the"
+  destination <- someTill printChar (char '.')
+  lexeme . string $ "The Beetle King jumps on the train and is whisked away from the"
+  oldPlace <- lexeme $ someTill printChar (char '.')
+  lexeme . string $ "The adventure must go on!"
   return $ Train destination
 
 pFlavor :: Parser JadaTweet
