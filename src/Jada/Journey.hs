@@ -6,6 +6,7 @@ module Jada.Journey
 where
 
 import Data.Void
+import Lens.Micro
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L (lexeme)
@@ -16,6 +17,8 @@ import Web.Tweet.Utils
 
 type Parser = Parsec Void String
 
+data Reward = Level String | Item String deriving (Show)
+
 data Kill = Kill
   { killStyle :: String,
     killTarget :: String,
@@ -23,11 +26,12 @@ data Kill = Kill
   }
   deriving (Show)
 
-data Reward = Level String | Item String deriving (Show)
-
-newtype Discovery = Discovery String deriving (Show)
-
-newtype Train = Train String deriving (Show)
+data JadaTweet
+  = Discovery String
+  | Train String
+  | Enemy Kill
+  | Flavor String
+  deriving (Show)
 
 lexeme = L.lexeme space
 
@@ -43,39 +47,48 @@ pItem = do
   item <- someTill asciiChar (char '!')
   return $ Item item
 
-pKill :: Parser Kill
+pKill :: Parser JadaTweet
 pKill = dbg "kill" $ do
   string "Jada "
-  killStyle <- lexeme $ some letterChar >> string "killed a "
+  killStyle <- lexeme $ some letterChar
+  string "killed a "
   killTarget <- lexeme $ some alphaNumChar
   killReward <- pLevel <|> pItem
 
-  return Kill {killStyle, killTarget, killReward}
+  return $ Enemy $ Kill {killStyle, killTarget, killReward}
 
-pDiscovery :: Parser Discovery
+pDiscovery :: Parser JadaTweet
 pDiscovery = do
   string "Jada has discovered the "
   discovery <- someTill asciiChar (char '.')
   return $ Discovery discovery
 
-pTrain :: Parser Train
+pTrain :: Parser JadaTweet
 pTrain = do
   string "Jada notices a train headed for the "
   destination <- someTill asciiChar (char '.')
   return $ Train destination
 
-pFlavor :: Parser String
-pFlavor =
-  choice $
-    string
-      <$> [ "Entering the world of... Jada MMORPG",
-            "Jada has entered the world at level 1!",
-            "The finest finery for supporters of the Beetle King and his adventures. https://t.co/xJuUWWmnpY",
-            "Jada's bard finally learned how to sing."
-          ]
+pFlavor :: Parser JadaTweet
+pFlavor = do
+  text <-
+    choice $
+      string
+        <$> [ "Entering the world of... Jada MMORPG",
+              "Jada has entered the world at level 1!",
+              "The finest finery for supporters of the Beetle King and his adventures. https://t.co/xJuUWWmnpY",
+              "Jada's bard finally learned how to sing."
+            ]
+  return $ Flavor text
+
+pTweet :: Parser JadaTweet
+pTweet = pFlavor <|> pKill <|> pTrain <|> pDiscovery
 
 jadaRPGTimeline :: FilePath -> IO Timeline
 jadaRPGTimeline = getAll "jadaRPG" Nothing
 
 main :: IO ()
-main = putStrLn "success"
+main = do
+  timeline <- jadaRPGTimeline ".cred.toml"
+  putStrLn $ displayTimelineColor timeline
+  parseTest pTweet `mapM_` (timeline ^.. each . text) >>= print
