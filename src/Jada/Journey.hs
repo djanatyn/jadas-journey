@@ -58,9 +58,12 @@ pKill = dbg "kill" $ do
   return $ Enemy $ Kill {killStyle, killTarget, killReward}
 
 pDiscovery :: Parser JadaTweet
-pDiscovery = do
+pDiscovery = dbg "discovery" $ do
   string "Jada has discovered the "
-  discovery <- someTill asciiChar (char '.')
+  discovery <- lexeme $ someTill printChar (char '.')
+  lexeme . string $ "The monsters here are unforgiving but the Beetle King will persevere."
+  lexeme . string $ "He makes camp for the night as he prepares to leave the"
+  oldPlace <- lexeme $ someTill printChar (char '.')
   return $ Discovery discovery
 
 pTrain :: Parser JadaTweet
