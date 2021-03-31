@@ -53,8 +53,7 @@ pKill = dbg "kill" $ do
   killStyle <- lexeme $ some letterChar
   string "killed a "
   killTarget <- lexeme $ some alphaNumChar
-  killReward <- pLevel <|> pItem
-
+  killReward <- try pLevel <|> try pItem
   return $ Enemy $ Kill {killStyle, killTarget, killReward}
 
 pDiscovery :: Parser JadaTweet
@@ -72,10 +71,10 @@ pDiscovery = dbg "discovery" $ do
       <$> [ "The monsters here are unforgiving but the Beetle King will persevere.  He makes camp for the night as he prepares to leave the",
             "Its very chilly but the Beetle King has endured worse.  Despite the inclimate weather he is ready to tackle whatever lies ahead. He takes only what he needs as he leaves the",
             "Jada decides to follow them and leave the",
-            "This would've been unexpected for anyone but the Beetle King seems unphased. I guess it wasn't meant for him to be in the",
+            "This would've been unexpected for anyone but the Beetle King seems unphased. I guess it wasn't meant for him to be in the"
           ]
   oldPlace <- lexeme $ someTill printChar (char '.')
-  optional $ try . string "any longer..."
+  skipMany $ try $ string "any longer..."
   return $ Discovery discovery
 
 pTrain :: Parser JadaTweet
@@ -127,13 +126,12 @@ pResponse = dbg "response" $ do
 
 pTweet :: Parser JadaTweet
 pTweet =
-  try pDiscovery
-    <|> try pFlavor
+  try pFlavor
     <|> try pScribe
     <|> try pResponse
+    <|> try pTrain
     <|> try pKill
     <|> try pDiscovery
-    <|> pTrain
 
 jadaRPGTimeline :: FilePath -> IO Timeline
 jadaRPGTimeline = getAll "jadaRPG" Nothing
