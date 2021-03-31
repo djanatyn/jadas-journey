@@ -69,7 +69,7 @@ pDiscovery = dbg "discovery" $ do
 pTrain :: Parser JadaTweet
 pTrain = dbg "train" $ do
   lexeme . string $ "Jada notices a train headed for the"
-  destination <- someTill printChar (char '.')
+  destination <- lexeme $ someTill printChar (char '.')
   lexeme . string $ "The Beetle King jumps on the train and is whisked away from the"
   oldPlace <- lexeme $ someTill printChar (char '.')
   lexeme . string $ "The adventure must go on!"
