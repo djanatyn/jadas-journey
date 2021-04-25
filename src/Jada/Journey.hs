@@ -1,12 +1,14 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE StandaloneDeriving #-}
 
 module Jada.Journey
   ( main,
   )
 where
 
+import qualified Data.ByteString as BS
 import Data.Store
 import Data.Void
 import GHC.Generics
@@ -140,8 +142,18 @@ pTweet =
 jadaRPGTimeline :: FilePath -> IO Timeline
 jadaRPGTimeline = getAll "jadaRPG" Nothing
 
+-- allow serialization of tweets
+deriving instance Generic TweetEntity
+
+instance Store TweetEntity
+
+storeTweets :: FilePath -> Timeline -> IO ()
+storeTweets path timeline = BS.writeFile path $ encode timeline
+
+loadTweets :: FilePath -> IO Timeline
+loadTweets path = decodeEx <$> BS.readFile path
+
 main :: IO ()
 main = do
-  timeline <- jadaRPGTimeline ".cred.toml"
-  putStrLn $ displayTimelineColor timeline
-  parseTest pTweet `mapM_` (timeline ^.. each . text) >>= print
+  tweets <- loadTweets "tweet.store"
+  putStrLn . displayTimelineColor $ tweets
