@@ -45,6 +45,13 @@
             tweet-hs
             microlens
 
+            # testing
+            tasty
+            tasty-hunit
+
+            # storing tweets
+            store
+
             # config
             dhall
           ];
