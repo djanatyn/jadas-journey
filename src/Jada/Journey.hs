@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE NamedFieldPuns #-}
 
 module Jada.Journey
@@ -5,7 +7,9 @@ module Jada.Journey
   )
 where
 
+import Data.Store
 import Data.Void
+import GHC.Generics
 import Lens.Micro
 import Text.Megaparsec
 import Text.Megaparsec.Char
@@ -17,21 +21,21 @@ import Web.Tweet.Utils
 
 type Parser = Parsec Void String
 
-data Reward = Level String | Item String deriving (Show)
+data Reward = Level String | Item String deriving (Show, Generic, Store)
 
 data Kill = Kill
   { killStyle :: String,
     killTarget :: String,
     killReward :: Reward
   }
-  deriving (Show)
+  deriving (Show, Generic, Store)
 
 data JadaTweet
   = Discovery String
   | Train String
   | Enemy Kill
   | Flavor String
-  deriving (Show)
+  deriving (Show, Generic, Store)
 
 lexeme = L.lexeme space
 
