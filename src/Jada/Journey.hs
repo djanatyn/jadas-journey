@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE StandaloneDeriving #-}
 
@@ -21,22 +22,27 @@ import Web.Tweet
 import Web.Tweet.API
 import Web.Tweet.Utils
 
+-- allow serialization of tweets
+deriving instance Generic TweetEntity
+
+instance Store TweetEntity
+
 type Parser = Parsec Void String
 
-data Reward = Level String | Item String deriving (Show, Generic, Store)
-
-data Kill = Kill
-  { killStyle :: String,
-    killTarget :: String,
-    killReward :: Reward
-  }
+data Reward where
+  Level :: String -> Reward
+  Item :: String -> Reward
   deriving (Show, Generic, Store)
 
-data JadaTweet
-  = Discovery String
-  | Train String
-  | Enemy Kill
-  | Flavor String
+data Kill where
+  Kill :: {style :: String, target :: String, reward :: Reward} -> Kill
+  deriving (Show, Generic, Store)
+
+data JadaTweet where
+  Discovery :: String -> JadaTweet
+  Train :: String -> JadaTweet
+  Enemy :: Kill -> JadaTweet
+  Flavor :: String -> JadaTweet
   deriving (Show, Generic, Store)
 
 lexeme = L.lexeme space
@@ -56,11 +62,11 @@ pItem = do
 pKill :: Parser JadaTweet
 pKill = dbg "kill" $ do
   string "Jada "
-  killStyle <- lexeme $ some letterChar
+  style <- lexeme $ some letterChar
   string "killed a "
-  killTarget <- lexeme $ some alphaNumChar
-  killReward <- try pLevel <|> try pItem
-  return $ Enemy $ Kill {killStyle, killTarget, killReward}
+  target <- lexeme $ some alphaNumChar
+  reward <- try pLevel <|> try pItem
+  return $ Enemy $ Kill {style, target, reward}
 
 pDiscovery :: Parser JadaTweet
 pDiscovery = dbg "discovery" $ do
@@ -141,11 +147,6 @@ pTweet =
 
 jadaRPGTimeline :: FilePath -> IO Timeline
 jadaRPGTimeline = getAll "jadaRPG" Nothing
-
--- allow serialization of tweets
-deriving instance Generic TweetEntity
-
-instance Store TweetEntity
 
 storeTweets :: FilePath -> Timeline -> IO ()
 storeTweets path timeline = BS.writeFile path $ encode timeline
