@@ -5,7 +5,19 @@
 {-# LANGUAGE StandaloneDeriving #-}
 
 module Jada.Journey
-  ( main,
+  ( -- Types
+    Reward (..),
+    Kill (..),
+    JadaTweet (..),
+    -- Serialization
+    storeTweets,
+    loadTweets,
+    -- Fetch Timeline
+    jadaRPGTimeline,
+    -- Parsing
+    pTweet,
+    -- CLI
+    main,
   )
 where
 
