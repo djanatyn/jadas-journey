@@ -43,7 +43,7 @@ we can get some values representing each tweet:
 ```haskell 
 kill> IN: "Jada kiddingly killed a Attendedrius an <…>
 kill> MATCH (COK): "Jada kiddingly killed a Attendedrius an <…>
-kill> VALUE: Enemy (Kill {killStyle = "kiddingly", killTarget = "Attendedrius", killReward = Level "2"})
+kill> VALUE: Enemy (Kill {style = "kiddingly", target = "Attendedrius", reward = Level "2"})
 ```
 
 once we have a way to process tweets into structured information, we can ask questions about the entire journey!
