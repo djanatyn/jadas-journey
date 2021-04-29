@@ -10,19 +10,21 @@ the tweets behind the [JadaRpg](https://twitter.com/JadaRpg) account are very st
 
 by defining types for the tweets,
 ``` haskell
-data JadaTweet
-  = Discovery String
-  | Train String
-  | Enemy Kill
-  | Flavor String
-  deriving (Show)
-  
-data Kill = Kill
-  { killStyle :: String,
-    killTarget :: String,
-    killReward :: Reward
-  }
-  deriving (Show)
+data Reward where
+  Level :: String -> Reward
+  Item :: String -> Reward
+  deriving (Show, Generic, Store)
+
+data Kill where
+  Kill :: {style :: String, target :: String, reward :: Reward} -> Kill
+  deriving (Show, Generic, Store)
+
+data JadaTweet where
+  Discovery :: String -> JadaTweet
+  Train :: String -> JadaTweet
+  Enemy :: Kill -> JadaTweet
+  Flavor :: String -> JadaTweet
+  deriving (Show, Generic, Store)
 ```
 
 and parsers for each type:
@@ -30,18 +32,18 @@ and parsers for each type:
 pKill :: Parser JadaTweet
 pKill = dbg "kill" $ do
   string "Jada "
-  killStyle <- lexeme $ some letterChar
+  style <- lexeme $ some letterChar
   string "killed a "
-  killTarget <- lexeme $ some alphaNumChar
-  killReward <- try pLevel <|> try pItem
-  return $ Enemy $ Kill {killStyle, killTarget, killReward}
+  target <- lexeme $ some alphaNumChar
+  reward <- try pLevel <|> try pItem
+  return $ Enemy $ Kill {style, target, reward}
 ```
 
 we can get some values representing each tweet:
 ```haskell 
-kill> IN: "Jada hastily killed a Gonzoulon and rea <…>
-kill> MATCH (COK): "Jada hastily killed a Gonzoulon and rea <…>
-kill> VALUE: Enemy (Kill {killStyle = "hastily", killTarget = "Gonzoulon", killReward = Level "3"})
+kill> IN: "Jada kiddingly killed a Attendedrius an <…>
+kill> MATCH (COK): "Jada kiddingly killed a Attendedrius an <…>
+kill> VALUE: Enemy (Kill {killStyle = "kiddingly", killTarget = "Attendedrius", killReward = Level "2"})
 ```
 
 once we have a way to process tweets into structured information, we can ask questions about the entire journey!
@@ -54,7 +56,7 @@ do
   let 
     rewards :: String -> Maybe Reward
     rewards = \case parseMaybe pTweet of
-        Just (Enemy e)) -> Just (killReward e)
+        Just (Enemy e) -> Just (killReward e)
         otherwise -> Nothing
   in pure . mapMaybe rewards $ timeline ^.. each . text
 ```
