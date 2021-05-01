@@ -1,11 +1,12 @@
 -- |
 module Test where
 
-import Data.Maybe
+import Data.Either
 import Jada.Journey hiding (main)
 import Lens.Micro
 import Test.Tasty
 import Test.Tasty.HUnit
+import Test.Tasty.Runners.Html
 import Text.Megaparsec
 import Web.Tweet
 import Web.Tweet.Utils (displayTimelineColor)
@@ -14,15 +15,12 @@ testParse :: TweetEntity -> TestTree
 testParse entity =
   let tweet :: String
       tweet = entity ^. text
-
-      parsed :: Maybe JadaTweet
-      parsed = parseMaybe pTweet tweet
-   in testCase "parsing tweets" $
-        assertBool
-          ("could not parse tweet: " ++ tweet)
-          (isJust parsed)
+   in testCase tweet $
+        case parse pTweet "tweet" tweet of
+          Left error -> assertFailure ("could not parse tweet: " ++ errorBundlePretty error)
+          Right t -> print t
 
 main = do
   tweets <- loadTweets "tweet.store"
-  defaultMain $
+  defaultMainWithIngredients (htmlRunner : defaultIngredients) $
     testGroup "tests" (testParse <$> tweets)
