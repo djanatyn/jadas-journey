@@ -16,8 +16,6 @@ module Jada.Journey
     jadaRPGTimeline,
     -- Parsing
     pTweet,
-    -- CLI
-    main,
   )
 where
 
