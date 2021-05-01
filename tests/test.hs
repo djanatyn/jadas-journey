@@ -1,10 +1,16 @@
 -- |
 module Test where
 
-import qualified Jada.Journey hiding (main)
+import Jada.Journey hiding (main)
 import Test.Tasty
 import Test.Tasty.HUnit
+import Web.Tweet.Utils (displayTimelineColor)
 
-main = defaultMain $
-  testCase "first test" $ do
-    2 + 2 @?= 4
+main =
+  defaultMain $
+    testGroup
+      "tests"
+      [ testCase "load tweets" $ do
+          tweets <- loadTweets "tweet.store"
+          putStrLn . displayTimelineColor $ tweets
+      ]
