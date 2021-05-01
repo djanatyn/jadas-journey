@@ -33,4 +33,6 @@ test-suite tests
     tasty,
     tasty-hunit,
     tweet-hs,
+    megaparsec,
+    microlens,
     jadas-journey
