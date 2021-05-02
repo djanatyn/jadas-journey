@@ -23,4 +23,4 @@ testParse entity =
 main = do
   tweets <- loadTweets "tweet.store"
   defaultMainWithIngredients (htmlRunner : defaultIngredients) $
-    testGroup "tests" (testParse <$> tweets)
+    testGroup "parsing stored tweets" (testParse <$> tweets)

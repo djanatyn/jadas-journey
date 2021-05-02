@@ -72,9 +72,8 @@ pItem = do
 pKill :: Parser JadaTweet
 pKill = dbg "kill" $ do
   string "Jada "
-  style <- lexeme $ some letterChar
-  string "killed a "
-  target <- lexeme $ some alphaNumChar
+  style <- lexeme $ someTill printChar (string "killed a")
+  target <- lexeme $ some (alphaNumChar <|> char '-' <|> char '”')
   reward <- try pLevel <|> try pItem
   return $ Enemy $ Kill {style, target, reward}
 
@@ -85,15 +84,17 @@ pDiscovery = dbg "discovery" $ do
       <$> [ "Jada has discovered the",
             "Jada stumbled across the",
             "Jada notices a group of people headed west. He asks where they are going. A young orphan among them notices that this man is the Beetle King himself! The orphan explains that they are headed for the",
-            "Jada trips into a deep hole, at the bottom he falls into a portal that transported him to the"
+            "Jada trips into a deep hole, at the bottom he falls into a portal that transported him to the",
+            "Jada notices the clouds shifting and it's suddenly chilly. He adjusts the straps of bag before leaving"
           ]
   discovery <- lexeme $ someTill printChar (char '.')
   choice $
     try . lexeme . string
       <$> [ "The monsters here are unforgiving but the Beetle King will persevere.  He makes camp for the night as he prepares to leave the",
-            "Its very chilly but the Beetle King has endured worse.  Despite the inclimate weather he is ready to tackle whatever lies ahead. He takes only what he needs as he leaves the",
+            "Its very chilly but the Beetle King has endured worse.  Despite the inclimate weather he is ready to tackle whatever lies ahead.  He takes only what he needs as he leaves the",
             "Jada decides to follow them and leave the",
-            "This would've been unexpected for anyone but the Beetle King seems unphased. I guess it wasn't meant for him to be in the"
+            "This would've been unexpected for anyone but the Beetle King seems unphased. I guess it wasn't meant for him to be in the",
+            "Following a well-worn path, Jada marches forth for hours, eventually coming across"
           ]
   oldPlace <- lexeme $ someTill printChar (char '.')
   skipMany $ try $ string "any longer..."
