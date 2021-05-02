@@ -7,7 +7,6 @@ build-type: Simple
 extra-source-files: README.md
 
 library
-  ghc-options: -rtsopts -g -threaded
   hs-source-dirs: src
   exposed-modules: Jada.Journey
   build-depends:
