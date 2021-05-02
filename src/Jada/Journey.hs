@@ -20,16 +20,15 @@ module Jada.Journey
 where
 
 import qualified Data.ByteString as BS
-import Data.Store
-import Data.Void
-import GHC.Generics
-import Lens.Micro
+import Data.Store (Store, decodeEx, encode)
+import Data.Void (Void)
+import GHC.Generics (Generic)
+import Lens.Micro (each, (^.), (^..))
 import Text.Megaparsec
-import Text.Megaparsec.Char
+import Text.Megaparsec.Char (alphaNumChar, char, numberChar, printChar, space, string)
 import qualified Text.Megaparsec.Char.Lexer as L (lexeme)
-import Web.Tweet
-import Web.Tweet.API
-import Web.Tweet.Utils
+import Web.Tweet (Timeline, TweetEntity (..), getAll)
+import Web.Tweet.Utils (displayTimelineColor)
 
 -- allow serialization of tweets
 deriving instance Generic TweetEntity
@@ -65,7 +64,7 @@ pLevel = do
 pItem :: Parser Reward
 pItem = do
   string "found a "
-  item <- someTill asciiChar (char '!')
+  item <- someTill printChar (char '!')
   return $ Item item
 
 pKill :: Parser JadaTweet
