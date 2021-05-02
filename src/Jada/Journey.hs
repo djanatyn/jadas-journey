@@ -27,7 +27,6 @@ import Lens.Micro
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L (lexeme)
-import Text.Megaparsec.Debug (dbg)
 import Web.Tweet
 import Web.Tweet.API
 import Web.Tweet.Utils
@@ -70,7 +69,7 @@ pItem = do
   return $ Item item
 
 pKill :: Parser JadaTweet
-pKill = dbg "kill" $ do
+pKill = do
   string "Jada "
   style <- lexeme $ someTill printChar (string "killed a")
   target <- lexeme $ some (alphaNumChar <|> char '-' <|> char '”')
@@ -78,7 +77,7 @@ pKill = dbg "kill" $ do
   return $ Enemy $ Kill {style, target, reward}
 
 pDiscovery :: Parser JadaTweet
-pDiscovery = dbg "discovery" $ do
+pDiscovery = do
   choice $
     try . lexeme . string
       <$> [ "Jada has discovered the",
@@ -101,7 +100,7 @@ pDiscovery = dbg "discovery" $ do
   return $ Discovery discovery
 
 pTrain :: Parser JadaTweet
-pTrain = dbg "train" $ do
+pTrain = do
   lexeme . string $ "Jada notices a train headed for the"
   destination <- lexeme $ someTill printChar (char '.')
   lexeme . string $ "The Beetle King jumps on the train and is whisked away from the"
@@ -110,7 +109,7 @@ pTrain = dbg "train" $ do
   return $ Train destination
 
 pFlavor :: Parser JadaTweet
-pFlavor = dbg "flavor" $ do
+pFlavor = do
   text <-
     choice $
       try . string
@@ -125,7 +124,7 @@ pFlavor = dbg "flavor" $ do
   return $ Flavor text
 
 pScribe :: Parser JadaTweet
-pScribe = dbg "scribe" $ do
+pScribe = do
   text <-
     choice $
       try . string
@@ -136,7 +135,7 @@ pScribe = dbg "scribe" $ do
   return $ Flavor text
 
 pResponse :: Parser JadaTweet
-pResponse = dbg "response" $ do
+pResponse = do
   text <-
     choice $
       try . string
