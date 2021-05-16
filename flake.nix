@@ -48,7 +48,7 @@
             # testing
             tasty
             tasty-hunit
-            tasty-html
+            # tasty-html
 
             # storing tweets
             store

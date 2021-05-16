@@ -27,7 +27,7 @@ import Lens.Micro (each, (^.), (^..))
 import Text.Megaparsec
 import Text.Megaparsec.Char (alphaNumChar, char, numberChar, printChar, space, string)
 import qualified Text.Megaparsec.Char.Lexer as L (lexeme)
-import Web.Tweet (Timeline, TweetEntity (..), getAll)
+import Web.Tweet (Timeline, TweetEntity (..), getAll, text)
 import Web.Tweet.Utils (displayTimelineColor)
 
 -- allow serialization of tweets
@@ -163,7 +163,14 @@ storeTweets path timeline = BS.writeFile path $ encode timeline
 loadTweets :: FilePath -> IO Timeline
 loadTweets path = decodeEx <$> BS.readFile path
 
+printParse :: TweetEntity -> IO ()
+printParse entity = case parse pTweet "tweet" (entity ^. text) of
+  Left error -> print ("could not parse tweet: " ++ errorBundlePretty error)
+  Right t -> print t
+
 main :: IO ()
 main = do
   tweets <- loadTweets "tweet.store"
-  putStrLn . displayTimelineColor $ tweets
+  mapM_ printParse tweets
+
+-- putStrLn . displayTimelineColor $ tweets
