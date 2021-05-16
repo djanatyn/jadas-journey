@@ -3,6 +3,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE ViewPatterns #-}
 
 module Jada.Journey
   ( -- Types
@@ -171,6 +172,11 @@ printParse entity = case parse pTweet "tweet" (entity ^. text) of
 main :: IO ()
 main = do
   tweets <- loadTweets "tweet.store"
-  mapM_ printParse tweets
+  mapM_ process tweets
+  where
+    view :: TweetEntity -> Either (ParseErrorBundle String Void) JadaTweet
+    view entity = parse pTweet "tweet" (entity ^. text)
 
--- putStrLn . displayTimelineColor $ tweets
+    process :: TweetEntity -> IO ()
+    process (view -> Left error) = print ("could not parse tweet: " ++ errorBundlePretty error)
+    process (view -> Right tweet) = print tweet
